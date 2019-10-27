@@ -19,13 +19,11 @@ df_policy_4 = df.loc[df.teacher_assist_policy_id == 4]
 #      'pl_p_end_time', 'pl_p_first_response_time',
 #      'pl_p_finished'], axis=1)
 df_policy_4 = df_policy_4.drop(
-    ['Unnamed: 0', 'teacher_assist_policy_id', 'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
-     'plta_attempt_count', 'plta_end_time',
-     'plta_first_response_time', 'plid', 'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_n_first_action',
-     'pl_n_attempt_count', 'pl_n_start_time', 'pl_n_end_time',
-     'pl_n_first_response_time', 'pl_p_assignment_id', 'pl_p_first_action', 'pl_p_attempt_count', 'pl_p_start_time',
-     'pl_p_end_time', 'pl_p_first_response_time',
-     'pl_p_finished'], axis=1)
+    ['Unnamed: 0', 'teacher_assist_policy_id', 'ats_assigned_at', 'plta_first_action',
+     'plta_attempt_count', 'plta_end_time', 'plta_first_response_time', 'plid', 'pl_p_id', 'pl_n_id',
+     'pl_n_assignment_id', 'pl_n_first_action', 'pl_n_attempt_count', 'pl_n_start_time', 'pl_n_end_time',
+     'pl_n_first_response_time', 'pl_p_assignment_id', 'pl_p_first_action', 'pl_p_attempt_count',
+     'pl_p_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
 
 # combine: plta_problem_id, pl_n_problem_id, pl_p_problem_id
 
