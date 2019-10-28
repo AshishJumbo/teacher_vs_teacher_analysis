@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+import math
 
 
 # This class is used for managing the console printouts and beautification for easier comprehension of the results
@@ -21,7 +21,7 @@ pd.set_option("display.max_columns", None)
 pd.options.mode.chained_assignment = None
 
 # preprocess data for regression analysis
-df_teacher_vs_teacher = pd.read_csv("../data/df_policy_4_teacher_vs_teacher.csv")
+df_teacher_vs_teacher = pd.read_csv("../data/df_regression_1.csv")
 problem_ids_with_TA = df_teacher_vs_teacher['plta_problem_id'].unique()
 df_teacher_vs_teacher.drop(['Unnamed: 0'], axis=1, inplace=True)
 
@@ -107,8 +107,9 @@ def find_prev_avg_score(user_id, pl_p_problem_id, plta_problem_id, unique_assign
     # print(len1, '===========================', len(df_pre_proformance_temp['user_id']))
     # print("---------------")
     average = df_pre_proformance_temp['correct'].mean()
+    # normalizing a left-tailed normal distribution : 1 - sqrt(1-avg)
     df_teacher_vs_teacher.loc[df_teacher_vs_teacher['assignment_id_user_id'] == unique_assignment_id_user_id,
-                              'pre_scores'] = average
+                              'pre_scores'] = (1 - math.sqrt(1 - average))
 
 
 df_teacher_vs_teacher["pre_scores"] = 0
@@ -118,8 +119,9 @@ for unique_assignment_id_user_id in unique_assignment_id_user_ids:
     find_prev_avg_score(df_temp.user_id.iloc[0], df_temp.pl_p_problem_id.iloc[0], df_temp.plta_problem_id.iloc[0],
                         unique_assignment_id_user_id)
 
-df_teacher_vs_teacher['pre_scores'].fillna(0, inplace=True)
-df_teacher_vs_teacher.to_csv("../data/regression_analysis_1_policy_4.csv")
+# replacing with 0 will make the distribution bimodal
+# df_teacher_vs_teacher['pre_scores'].fillna(df_teacher_vs_teacher.pre_scores.mean(), inplace=True)
+df_teacher_vs_teacher.to_csv("../data/df_regression_1_pre_score.csv")
 
 
 # for user_id in unique_user_ids:

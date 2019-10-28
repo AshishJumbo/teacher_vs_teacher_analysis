@@ -3,7 +3,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("../data/df_policy_4.csv")
+df = pd.read_csv("../data/main_df.csv")
 
 print(df.columns)
 
@@ -69,4 +69,4 @@ print("unique combinations", df_policy_4['prev_treat_next'].unique().size)
 print("-----------------------------------------------------------------------")
 
 
-df_policy_4_teacher_vs_teacher = df_policy_4.to_csv("../data/df_policy_4_teacher_vs_teacher.csv");
+df_policy_4_teacher_vs_teacher = df_policy_4.to_csv("../data/df_regression_1.csv")

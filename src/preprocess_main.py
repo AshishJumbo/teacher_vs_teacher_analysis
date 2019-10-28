@@ -16,7 +16,7 @@ print(df.columns)
 
 df_policy_4 = df.loc[df.teacher_assist_policy_id == 4]
 
-df_policy_4.to_csv("../data/df_policy_4.csv")
+df_policy_4.to_csv("../data/main_df.csv")
 
 print("------------------------data frame policy id 4 ---------------------------")
 print(df_policy_4.shape)
