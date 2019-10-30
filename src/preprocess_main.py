@@ -82,59 +82,6 @@ for unique_id in unique_pr_id:
 
 print("treatment average \n", df_treatment['problem_avg'].value_counts())
 
-df_pre_treatment = df.loc[df['assigned_tutor_strategy_id'] != 0]
-df_pre_treatment = df_pre_treatment.drop(['ts_owner_id', 'content_type', 'teacher_assist_policy_id',
-                                          'assigned_tutor_strategy_id', 'alternative_tutor_strategy_ids',
-                                          'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
-                                          'plta_attempt_count', 'plta_first_response_time', 'plta_finished', 'plid',
-                                          'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_n_problem_id', 'pl_n_correct',
-                                          'pl_n_first_action', 'pl_n_hint_count', 'pl_n_bottom_hint',
-                                          'pl_n_attempt_count', 'pl_n_start_time', 'pl_n_end_time',
-                                          'pl_n_first_response_time', 'pl_n_finished', 'pl_p_assignment_id',
-                                          'plta_problem_id', 'plta_correct', 'pl_p_first_action', 'plta_hint_count',
-                                          'plta_bottom_hint', 'pl_p_attempt_count', 'plta_start_time',
-                                          'plta_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
-df_pre_treatment.rename(columns={"pl_p_problem_id": "problem_id", "pl_p_correct": "correct",
-                                 "pl_p_hint_count": "hint_count", "pl_p_bottom_hint": "bottom_hint",
-                                 "pl_p_start_time": "start_time", "pl_p_end_time": "end_time"
-                                 }, inplace=True)
-
-df_pre_treatment['problem_avg'] = 0
-unique_pr_id = df_pre_treatment['problem_id'].unique()
-
-count = 0
-for unique_id in unique_pr_id:
-    count += 1
-    calculate_avg(df_pre_treatment, unique_id, count)
-
-print("pre-treatment average \n", df_pre_treatment['problem_avg'].value_counts())
-
-df_post_treatment = df.loc[df['assigned_tutor_strategy_id'] != 0]
-df_post_treatment = df_post_treatment.drop(['ts_owner_id', 'content_type', 'teacher_assist_policy_id',
-                                            'assigned_tutor_strategy_id', 'alternative_tutor_strategy_ids',
-                                            'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
-                                            'plta_attempt_count', 'plta_first_response_time', 'plta_finished', 'plid',
-                                            'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_p_problem_id',
-                                            'pl_p_correct',
-                                            'pl_n_first_action', 'pl_p_hint_count', 'pl_p_bottom_hint',
-                                            'pl_n_attempt_count', 'pl_p_start_time', 'pl_p_end_time',
-                                            'pl_n_first_response_time', 'pl_n_finished', 'pl_p_assignment_id',
-                                            'plta_problem_id', 'plta_correct', 'pl_p_first_action', 'plta_hint_count',
-                                            'plta_bottom_hint', 'pl_p_attempt_count', 'plta_start_time',
-                                            'plta_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
-df_post_treatment.rename(columns={"pl_n_problem_id": "problem_id", "pl_n_correct": "correct",
-                                  "pl_n_hint_count": "hint_count", "pl_n_bottom_hint": "bottom_hint",
-                                  "pl_n_start_time": "start_time", "pl_n_end_time": "end_time"
-                                  }, inplace=True)
-
-df_post_treatment['problem_avg'] = 0
-unique_pr_id = df_post_treatment['problem_id'].unique()
-count = 0
-for unique_id in unique_pr_id:
-    count += 1
-    calculate_avg(df_post_treatment, unique_id, count)
-
-print("post-treatment average \n", df_post_treatment['problem_avg'].value_counts())
 # df.dropna(inplace=True)
 # unique_plp_id = df['pl_p_problem_id'].unique()
 # unique_pln_id = df['pl_n_problem_id'].unique()
@@ -147,3 +94,59 @@ print("post-treatment average \n", df_post_treatment['problem_avg'].value_counts
 # np.savetxt("../data/problem_ids_in_TA_pre.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
 # np.savetxt("../data/problem_ids_in_TA_next.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
 # np.savetxt("../data/problem_ids_in_TA_treatment.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
+
+
+
+# df_pre_treatment = df.loc[df['assigned_tutor_strategy_id'] != 0]
+# df_pre_treatment = df_pre_treatment.drop(['ts_owner_id', 'content_type', 'teacher_assist_policy_id',
+#                                           'assigned_tutor_strategy_id', 'alternative_tutor_strategy_ids',
+#                                           'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
+#                                           'plta_attempt_count', 'plta_first_response_time', 'plta_finished', 'plid',
+#                                           'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_n_problem_id', 'pl_n_correct',
+#                                           'pl_n_first_action', 'pl_n_hint_count', 'pl_n_bottom_hint',
+#                                           'pl_n_attempt_count', 'pl_n_start_time', 'pl_n_end_time',
+#                                           'pl_n_first_response_time', 'pl_n_finished', 'pl_p_assignment_id',
+#                                           'plta_problem_id', 'plta_correct', 'pl_p_first_action', 'plta_hint_count',
+#                                           'plta_bottom_hint', 'pl_p_attempt_count', 'plta_start_time',
+#                                           'plta_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
+# df_pre_treatment.rename(columns={"pl_p_problem_id": "problem_id", "pl_p_correct": "correct",
+#                                  "pl_p_hint_count": "hint_count", "pl_p_bottom_hint": "bottom_hint",
+#                                  "pl_p_start_time": "start_time", "pl_p_end_time": "end_time"
+#                                  }, inplace=True)
+#
+# df_pre_treatment['problem_avg'] = 0
+# unique_pr_id = df_pre_treatment['problem_id'].unique()
+#
+# count = 0
+# for unique_id in unique_pr_id:
+#     count += 1
+#     calculate_avg(df_pre_treatment, unique_id, count)
+#
+# print("pre-treatment average \n", df_pre_treatment['problem_avg'].value_counts())
+#
+# df_post_treatment = df.loc[df['assigned_tutor_strategy_id'] != 0]
+# df_post_treatment = df_post_treatment.drop(['ts_owner_id', 'content_type', 'teacher_assist_policy_id',
+#                                             'assigned_tutor_strategy_id', 'alternative_tutor_strategy_ids',
+#                                             'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
+#                                             'plta_attempt_count', 'plta_first_response_time', 'plta_finished', 'plid',
+#                                             'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_p_problem_id',
+#                                             'pl_p_correct',
+#                                             'pl_n_first_action', 'pl_p_hint_count', 'pl_p_bottom_hint',
+#                                             'pl_n_attempt_count', 'pl_p_start_time', 'pl_p_end_time',
+#                                             'pl_n_first_response_time', 'pl_n_finished', 'pl_p_assignment_id',
+#                                             'plta_problem_id', 'plta_correct', 'pl_p_first_action', 'plta_hint_count',
+#                                             'plta_bottom_hint', 'pl_p_attempt_count', 'plta_start_time',
+#                                             'plta_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
+# df_post_treatment.rename(columns={"pl_n_problem_id": "problem_id", "pl_n_correct": "correct",
+#                                   "pl_n_hint_count": "hint_count", "pl_n_bottom_hint": "bottom_hint",
+#                                   "pl_n_start_time": "start_time", "pl_n_end_time": "end_time"
+#                                   }, inplace=True)
+#
+# df_post_treatment['problem_avg'] = 0
+# unique_pr_id = df_post_treatment['problem_id'].unique()
+# count = 0
+# for unique_id in unique_pr_id:
+#     count += 1
+#     calculate_avg(df_post_treatment, unique_id, count)
+#
+# print("post-treatment average \n", df_post_treatment['problem_avg'].value_counts())

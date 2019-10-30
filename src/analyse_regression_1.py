@@ -56,7 +56,7 @@ df.pre_scores.plot.kde()
 df.rename(columns={'plta_correct': 'treatment_score', 'pl_p_correct': 'pre_test_score',
                    'pl_n_correct': 'post_test_score', 'ts_owner_id': 'star_teacher',
                    'pre_scores': 'previous_performance', 'pl_n_avg': 'post_avg',
-                   'pl_p_avg': 'pre_avg'}, inplace=True)
+                   'pl_p_avg': 'pre_avg', 'plta_avg': 'treat_avg'}, inplace=True)
 
 df['real_post_measure'] = df['post_test_score'] - df['previous_performance']
 df.replace({'star_teacher': star_teacher_names}, inplace=True)
@@ -74,7 +74,9 @@ df.drop(['treatment_score', 'plta_hint_count', 'plta_bottom_hint', 'post_test_sc
 df['star_teacher'] = df['star_teacher'].astype('category')
 df = pd.get_dummies(df)
 # X = df[['pre_test_score', 'content_type', 'star_teacher']]
-X = df.drop(['real_post_measure', 'content_type_Explanation'], axis=1)
+X = df.drop(['real_post_measure', 'content_type_Explanation'
+             # , 'post_avg', 'pre_avg', 'treat_avg'
+             ], axis=1)
 y = df['real_post_measure']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
@@ -102,8 +104,8 @@ lasso = Lasso(alpha=1)
 model = lasso.fit(X_train, y_train)
 print_scores(model, X_train, y_train, 1)
 
-for i in range(5):
-    j = i + 2
+for i in range(3):
+    j = i + 4
     lasso = Lasso(alpha=(1 / math.pow(10, j)), max_iter=10e5)
     model = lasso.fit(X_train, y_train)
     print_scores(model, X_train, y_train, (1 / math.pow(10, j)))
@@ -117,7 +119,7 @@ ridge = Ridge(alpha=0)
 model = ridge.fit(X_train, y_train)
 print_scores(model, X_train, y_train, 0)
 
-for i in range(2):
+for i in range(3):
     j = i
     ridge = Ridge(alpha=(math.pow(10, j)))
     model3 = ridge.fit(X_train, y_train)

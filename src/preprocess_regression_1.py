@@ -75,8 +75,9 @@ print("-----------------------------------------------------------------------")
 df_policy_4.to_csv("../data/df_regression_1.csv")
 
 df_historical_records = pd.read_csv("../data/historical_control_problem_records.csv")
-df_policy_4['pl_n_avg'] = 0
-df_policy_4['pl_p_avg'] = 0
+df_policy_4['pl_n_avg'] = 1
+df_policy_4['pl_p_avg'] = 1
+df_policy_4['plta_avg'] = 1
 
 
 # print(len(df_historical_records))
@@ -101,5 +102,9 @@ for problem_id in unique_post_problem_ids:
 unique_pre_problem_ids = df_policy_4['pl_p_problem_id'].unique()
 for problem_id in unique_pre_problem_ids:
     calculate_average(problem_id, 'pl_n_problem_id', 'pl_p_avg')
+
+unique_treat_problem_ids = df_policy_4['plta_problem_id'].unique()
+for problem_id in unique_treat_problem_ids:
+    calculate_average(problem_id, 'plta_problem_id', 'plta_avg')
 
 df_policy_4.to_csv("../data/df_regression_1_avg_score.csv")
