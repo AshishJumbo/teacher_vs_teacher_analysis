@@ -10,6 +10,10 @@ print(df.columns)
 print(len(df['user_id'].unique()))
 
 df_policy_4 = df.loc[df.teacher_assist_policy_id == 4]
+
+df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460570].index, inplace=True)
+df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460571].index, inplace=True)
+df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460572].index, inplace=True)
 # df_policy_4 = df_policy_4.drop(
 #     ['Unnamed: 0', 'teacher_assist_policy_id', 'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
 #      'plta_attempt_count', 'plta_start_time', 'plta_end_time',
@@ -68,5 +72,34 @@ print("-----------------------------------------------------------------------")
 print("unique combinations", df_policy_4['prev_treat_next'].unique().size)
 print("-----------------------------------------------------------------------")
 
+df_policy_4.to_csv("../data/df_regression_1.csv")
 
-df_policy_4_teacher_vs_teacher = df_policy_4.to_csv("../data/df_regression_1.csv")
+df_historical_records = pd.read_csv("../data/historical_control_problem_records.csv")
+df_policy_4['pl_n_avg'] = 0
+df_policy_4['pl_p_avg'] = 0
+
+
+# print(len(df_historical_records))
+# df_historical_records = df_historical_records.groupby('problem_id').filter(lambda x: len(x) > 3)
+# print(len(df_historical_records))
+
+
+def calculate_average(next_problem_id, pre_post_identifier, pre_post_avg_identifier):
+    df_temp = df_historical_records.loc[df_historical_records['problem_id'] == next_problem_id]
+    average = 0
+    if len(df_temp.index) > 0:
+        average = df_temp.correct.mean()
+
+    df_policy_4.loc[df_policy_4[pre_post_identifier] == next_problem_id, pre_post_avg_identifier] = average
+    # print("problem - id : ", next_problem_id, " average : ", average)
+
+
+unique_post_problem_ids = df_policy_4['pl_n_problem_id'].unique()
+for problem_id in unique_post_problem_ids:
+    calculate_average(problem_id, 'pl_n_problem_id', 'pl_n_avg')
+
+unique_pre_problem_ids = df_policy_4['pl_p_problem_id'].unique()
+for problem_id in unique_pre_problem_ids:
+    calculate_average(problem_id, 'pl_n_problem_id', 'pl_p_avg')
+
+df_policy_4.to_csv("../data/df_regression_1_avg_score.csv")

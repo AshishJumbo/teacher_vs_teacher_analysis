@@ -19,6 +19,7 @@ class Color:
     UNDERLINE = '\033[4m'
     END = '\033[0m'
 
+
 star_teacher_names = {
     460570: "Starred Teacher 1",
     460571: "Starred Teacher 2",
@@ -54,7 +55,8 @@ df.pre_scores.plot.kde()
 
 df.rename(columns={'plta_correct': 'treatment_score', 'pl_p_correct': 'pre_test_score',
                    'pl_n_correct': 'post_test_score', 'ts_owner_id': 'star_teacher',
-                   'pre_scores': 'previous_performance'}, inplace=True)
+                   'pre_scores': 'previous_performance', 'pl_n_avg': 'post_avg',
+                   'pl_p_avg': 'pre_avg'}, inplace=True)
 
 df['real_post_measure'] = df['post_test_score'] - df['previous_performance']
 df.replace({'star_teacher': star_teacher_names}, inplace=True)
@@ -72,7 +74,7 @@ df.drop(['treatment_score', 'plta_hint_count', 'plta_bottom_hint', 'post_test_sc
 df['star_teacher'] = df['star_teacher'].astype('category')
 df = pd.get_dummies(df)
 # X = df[['pre_test_score', 'content_type', 'star_teacher']]
-X = df.drop(['real_post_measure'], axis=1)
+X = df.drop(['real_post_measure', 'content_type_Explanation'], axis=1)
 y = df['real_post_measure']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
@@ -87,8 +89,8 @@ def print_scores(model_print, X_print, y_print, alpha):
 
 # initialize and fit the linear model
 lm = linear_model.LinearRegression()
-model = lm.fit(X_train, y_train)
-print_scores(model, X_train, y_train, 1)
+model_linear = lm.fit(X_train, y_train)
+print_scores(model_linear, X_train, y_train, 1)
 
 print(Color.RED, "====================================================================================="
                  "==================================", Color.END)
@@ -96,12 +98,12 @@ print(Color.RED, "==============================================================
 from sklearn.linear_model import Lasso
 import math as math
 
-lasso = Lasso()
+lasso = Lasso(alpha=1)
 model = lasso.fit(X_train, y_train)
 print_scores(model, X_train, y_train, 1)
 
 for i in range(5):
-    j = i+1
+    j = i + 2
     lasso = Lasso(alpha=(1 / math.pow(10, j)), max_iter=10e5)
     model = lasso.fit(X_train, y_train)
     print_scores(model, X_train, y_train, (1 / math.pow(10, j)))
@@ -111,20 +113,29 @@ print(Color.RED, "==============================================================
 
 from sklearn.linear_model import Ridge
 
-ridge = Ridge(alpha=1)
+ridge = Ridge(alpha=0)
 model = ridge.fit(X_train, y_train)
-print_scores(model, X_train, y_train, 1)
+print_scores(model, X_train, y_train, 0)
 
 for i in range(2):
-    j=i+1
-    ridge = Ridge(alpha=math.pow(10, j))
-    model = ridge.fit(X_train, y_train)
-    print_scores(model, X_train, y_train, math.pow(10, j))
-
+    j = i
+    ridge = Ridge(alpha=(math.pow(10, j)))
+    model3 = ridge.fit(X_train, y_train)
+    print_scores(model3, X_train, y_train, math.pow(10, j))
 
 print(Color.RED, "====================================================================================="
                  "==================================", Color.END)
 
+plt.plot(model.coef_, alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
+         label=r'Ridge; $\alpha = 1$', zorder=7)  # zorder for ordering the markers
+plt.plot(model3.coef_, alpha=0.5, linestyle='none', marker='d', markersize=5, color='blue',
+         label=r'Ridge; $\alpha = 10000$', zorder=5)  # zorder for ordering the markers
+plt.plot(model_linear.coef_, alpha=0.3, linestyle='none', marker='o', markersize=7, color='green',
+         label='Linear Regression')
+plt.xlabel('Coefficient Index', fontsize=16)
+plt.ylabel('Coefficient Magnitude', fontsize=16)
+plt.legend(fontsize=13, loc=0)
+plt.show()
 
 # NOTES: the Ridge regression approach was the best approach with alpha value 1
 

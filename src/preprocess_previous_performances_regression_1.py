@@ -21,7 +21,7 @@ pd.set_option("display.max_columns", None)
 pd.options.mode.chained_assignment = None
 
 # preprocess data for regression analysis
-df_teacher_vs_teacher = pd.read_csv("../data/df_regression_1.csv")
+df_teacher_vs_teacher = pd.read_csv("../data/df_regression_1_avg_score.csv")
 problem_ids_with_TA = df_teacher_vs_teacher['plta_problem_id'].unique()
 df_teacher_vs_teacher.drop(['Unnamed: 0'], axis=1, inplace=True)
 
