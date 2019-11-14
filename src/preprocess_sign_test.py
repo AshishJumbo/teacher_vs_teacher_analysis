@@ -70,6 +70,7 @@ for i in range(unique_teacher_ids.size):
 
 def extract_information_perTeacher_perTreatmentQuestion(teacher_id):
     df_teacher_specific = df_policy_4.loc[df_policy_4.ts_owner_id == teacher_id]
+    print(df_teacher_specific.pl_p_correct.value_counts()[1], "    for  ", teacher_id)
     pre_count = df_teacher_specific.pl_p_correct.value_counts()[1]
     post_count = df_teacher_specific.pl_n_correct.value_counts()[1]
     df_teacher_sign_test.loc[df_teacher_sign_test.teacher_id == teacher_id, "pre_test"] = pre_count

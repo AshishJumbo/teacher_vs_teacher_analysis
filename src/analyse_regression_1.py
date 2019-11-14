@@ -5,6 +5,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import seaborn as sns
 import numpy as np
+import statsmodels.api as sm
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import Ridge
+import math as math
+
+import os
+
+
+def clear():
+    os.system('clear')  # on Linux System
+
+
+clear()
 
 
 class Color:
@@ -55,10 +68,15 @@ df.pre_scores.plot.kde()
 
 df.rename(columns={'plta_correct': 'treatment_score', 'pl_p_correct': 'pre_test_score',
                    'pl_n_correct': 'post_test_score', 'ts_owner_id': 'star_teacher',
-                   'pre_scores': 'previous_performance', 'pl_n_avg': 'post_avg',
-                   'pl_p_avg': 'pre_avg', 'plta_avg': 'treat_avg'}, inplace=True)
+                   'pre_scores': 'previous_performance', 'pl_n_avg': 'post item avg',
+                   'pl_p_avg': 'pre item avg', 'plta_avg': 'exp item avg'}, inplace=True)
 
 df['real_post_measure'] = df['post_test_score'] - df['previous_performance']
+
+df.rename(columns={'plta_correct': 'treatment_score', 'pl_p_correct': 'pre-test score',
+                   'pl_n_correct': 'post-test score', 'ts_owner_id': 'ST',
+                   'pre_scores': 'prior-correctness', 'pl_n_avg': 'post item avg',
+                   'pl_p_avg': 'pre item avg', 'plta_avg': 'exp item avg'}, inplace=True)
 df.replace({'star_teacher': star_teacher_names}, inplace=True)
 df_backup = df
 # df['star_teacher'] = df['star_teacher'].astype(str)
@@ -74,8 +92,10 @@ df.drop(['treatment_score', 'plta_hint_count', 'plta_bottom_hint', 'post_test_sc
 df['star_teacher'] = df['star_teacher'].astype('category')
 df = pd.get_dummies(df)
 # X = df[['pre_test_score', 'content_type', 'star_teacher']]
-X = df.drop(['real_post_measure', 'content_type_Explanation'
-             # , 'post_avg', 'pre_avg', 'treat_avg'
+X = df.drop(['real_post_measure'
+                # , 'content_type_Explanation'
+                , 'post item avg', 'pre item avg', 'exp item avg'
+                # , 'star_teacher_Heather Nees'
              ], axis=1)
 y = df['real_post_measure']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
@@ -96,9 +116,14 @@ print_scores(model_linear, X_train, y_train, 1)
 
 print(Color.RED, "====================================================================================="
                  "==================================", Color.END)
+print("the statsmodel output:")
+X_sm = X_train.copy()
+X_sm2 = sm.add_constant(X_sm)
+estimate = sm.OLS(y_train, X_sm2).fit()
+print(estimate.summary())
 
-from sklearn.linear_model import Lasso
-import math as math
+print(Color.RED, "====================================================================================="
+                 "==================================", Color.END)
 
 lasso = Lasso(alpha=1)
 model = lasso.fit(X_train, y_train)
@@ -107,13 +132,23 @@ print_scores(model, X_train, y_train, 1)
 for i in range(3):
     j = i + 4
     lasso = Lasso(alpha=(1 / math.pow(10, j)), max_iter=10e5)
-    model = lasso.fit(X_train, y_train)
+    model3 = lasso.fit(X_train, y_train)
     print_scores(model, X_train, y_train, (1 / math.pow(10, j)))
+
+plt.plot(model.coef_, alpha=0.7, linestyle='none', marker='*', markersize=5, color='red',
+         label=r'Lasso; $\alpha = 1$', zorder=7)  # zorder for ordering the markers
+plt.plot(model3.coef_, alpha=0.5, linestyle='none', marker='d', markersize=5, color='blue',
+         label=r'Lasso; $\alpha = 0.0000001$', zorder=5)  # zorder for ordering the markers
+plt.plot(model_linear.coef_, alpha=0.3, linestyle='none', marker='o', markersize=7, color='green',
+         label='Linear Regression')
+plt.xlabel('Coefficient Index', fontsize=16)
+plt.ylabel('Coefficient Magnitude', fontsize=16)
+plt.legend(fontsize=13, loc=0)
+plt.show()
 
 print(Color.RED, "====================================================================================="
                  "==================================", Color.END)
 
-from sklearn.linear_model import Ridge
 
 ridge = Ridge(alpha=0)
 model = ridge.fit(X_train, y_train)
@@ -147,6 +182,13 @@ plt.show()
 # print('Variance score: %.2f' % r2_score(y_test, y_predict))
 #
 # corr = X.corr()
+#
+# # corr.drop(['star_teacher_Andrew Burnett', 'star_teacher_Christina Lussier', 'star_teacher_Heather Nees',
+# #            'star_teacher_Irene Wong', 'star_teacher_Julie Snyder', 'star_teacher_Nicholas Sackos',
+# #            'star_teacher_Thia Durling', 'content_type_Explanation'], axis=0, inplace=True)
+# # corr.drop(['pre_test_score', 'post item avg', 'pre item avg', 'exp item avg',
+# #           'content_type_Explanation'], axis=1, inplace=True)
+#
 # # Generate a mask for the upper triangle
 # mask = np.zeros_like(corr, dtype=np.bool)
 # mask[np.triu_indices_from(mask)] = True
@@ -158,7 +200,9 @@ plt.show()
 # cmap = sns.diverging_palette(220, 10, as_cmap=True)
 #
 # # Draw the heatmap with the mask and correct aspect ratio
-# sns_heatmap = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0, square=True, linewidths=.5,
+# sns_heatmap = sns.heatmap(corr,
+#                           mask=mask,
+#                           cmap=cmap, vmax=.3, center=0, square=True, linewidths=.5,
 #                           cbar_kws={"shrink": .5}, annot=True, fmt='.2f')
 # bottom, top = sns_heatmap.get_ylim()
 # sns_heatmap.set_ylim(bottom + 0.5, top - 0.5)

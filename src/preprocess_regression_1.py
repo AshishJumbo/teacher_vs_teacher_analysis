@@ -72,6 +72,7 @@ print("-----------------------------------------------------------------------")
 print("unique combinations", df_policy_4['prev_treat_next'].unique().size)
 print("-----------------------------------------------------------------------")
 
+df_policy_4.to_csv("../data/df_policy_4_teacher_vs_teacher.csv")
 df_policy_4.to_csv("../data/df_regression_1.csv")
 
 df_historical_records = pd.read_csv("../data/historical_control_problem_records.csv")
@@ -92,7 +93,7 @@ def calculate_average(next_problem_id, pre_post_identifier, pre_post_avg_identif
         average = df_temp.correct.mean()
 
     df_policy_4.loc[df_policy_4[pre_post_identifier] == next_problem_id, pre_post_avg_identifier] = average
-    # print("problem - id : ", next_problem_id, " average : ", average)
+    print("problem - id : ", next_problem_id, " average : ", average)
 
 
 unique_post_problem_ids = df_policy_4['pl_n_problem_id'].unique()

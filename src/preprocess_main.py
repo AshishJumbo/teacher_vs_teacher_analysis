@@ -3,6 +3,14 @@ import numpy as np
 
 df = pd.read_csv("../data/problem_logs_with_teacher_assists_sept30.csv")
 
+# the first 3 ids are for star teacher 1,2,3 which are test users ans the last is for Irene Wong
+# which is the account for the summer scrub team
+teacher_ids_todrop = [460570, 460571, 460572, 578208]
+df = df[~df['ts_owner_id'].isin(teacher_ids_todrop)]
+
+teacher_id_less_than_15 = [543489, 539153, 166406, 490219, 488943, 519775, 478214, 558127]
+df = df[~df['ts_owner_id'].isin(teacher_id_less_than_15)]
+
 print(df.head())
 
 print(df.columns)
@@ -27,9 +35,6 @@ print(df_policy_4.shape)
 print("------------------------data frame policy id 1,2,3,4 ---------------------------")
 print(df.shape)
 
-df_historical_data = pd.read_csv('../data/historical_problem_records.csv')
-df_control = df.loc[df['assigned_tutor_strategy_id'] == 0]
-
 
 def drop_rename_columns(df_input):
     df_input = df_input.drop(['ts_owner_id', 'content_type', 'teacher_assist_policy_id', 'assigned_tutor_strategy_id',
@@ -52,35 +57,41 @@ def drop_rename_columns(df_input):
     return df_input
 
 
+df_control = df.loc[df['assigned_tutor_strategy_id'] == 0]
+# historical calculates the previous performance however as we add control as well we can have mode data for problem
+# difficulty overall.
 df_historical = pd.read_csv("../data/historical_problem_records.csv")
 df_historical.append(drop_rename_columns(df_control), ignore_index=True, sort=True)
 df_historical.to_csv("../data/historical_control_problem_records.csv")
 
-df_treatment = drop_rename_columns(df.loc[df['assigned_tutor_strategy_id'] != 0])
-df_treatment.to_csv("../data/historical_treatment_problem_records.csv")
 
-df_treatment['problem_avg'] = 0
+# everything below was for other exploration, this is not important for regression analysis being done currently
 
+# df_treatment = drop_rename_columns(df.loc[df['assigned_tutor_strategy_id'] != 0])
+# df_treatment.to_csv("../data/historical_treatment_problem_records.csv")
 
-def calculate_avg(df_treat, pr_id, count):
-    count += 1
-    df_temp = df_treat.loc[df_treat['problem_id'] == pr_id]
-    average = 0
-    if len(df_temp.index) > 0:
-        average = df_temp.correct.mean()
-
-    df_treat.loc[df_treat['problem_id'] == pr_id, 'problem_avg'] = average
-    if count <= 5:
-        print(count, " the average for the problem id : ", pr_id, " is the average : ", average)
-
-
-unique_pr_id = df_treatment['problem_id'].unique()
-count = 0
-for unique_id in unique_pr_id:
-    count += 1
-    calculate_avg(df_treatment, unique_id, count)
-
-print("treatment average \n", df_treatment['problem_avg'].value_counts())
+# df_treatment['problem_avg'] = 0
+#
+#
+# def calculate_avg(df_treat, pr_id, count):
+#     count += 1
+#     df_temp = df_treat.loc[df_treat['problem_id'] == pr_id]
+#     average = 0
+#     if len(df_temp.index) > 0:
+#         average = df_temp.correct.mean()
+#
+#     df_treat.loc[df_treat['problem_id'] == pr_id, 'problem_avg'] = average
+#     if count <= 5:
+#         print(count, " the average for the problem id : ", pr_id, " is the average : ", average)
+#
+#
+# unique_pr_id = df_treatment['problem_id'].unique()
+# count = 0
+# for unique_id in unique_pr_id:
+#     count += 1
+#     calculate_avg(df_treatment, unique_id, count)
+#
+# print("treatment average \n", df_treatment['problem_avg'].value_counts())
 
 # df.dropna(inplace=True)
 # unique_plp_id = df['pl_p_problem_id'].unique()
@@ -94,7 +105,6 @@ print("treatment average \n", df_treatment['problem_avg'].value_counts())
 # np.savetxt("../data/problem_ids_in_TA_pre.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
 # np.savetxt("../data/problem_ids_in_TA_next.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
 # np.savetxt("../data/problem_ids_in_TA_treatment.txt", list(unique_list), fmt='%i', delimiter=', ', newline=', ')
-
 
 
 # df_pre_treatment = df.loc[df['assigned_tutor_strategy_id'] != 0]
