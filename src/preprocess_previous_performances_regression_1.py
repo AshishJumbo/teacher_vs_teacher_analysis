@@ -29,12 +29,11 @@ df_teacher_vs_teacher['plta_start_time'] = pd.to_datetime(df_teacher_vs_teacher[
 unique_user_ids = df_teacher_vs_teacher['user_id'].unique()
 
 
-# because we are preventing carryover effect we need to only analyse instance where the user is exposed
-# to the treatment for the first time
-# for this we do the following pre-processing approaches:
-# 1. remove pre questions that had TA in them that were used
-# 2. remove questions with TA in them in the pre
-# 3. assignment_id + user_id combination must only occur once
+# because we are preventing carryover effect we need to only analyse instance where the user is exposed to the
+# treatment for the first time for this we do the following pre-processing approaches: 1. remove pre questions that
+# had TA in them that were used 2. remove questions with TA in them in the pre 3. assignment_id + user_id combination
+# must only occur once as cross over effect across assignment would be less significant:
+# Can we assume this?
 def console_log_op(old_size, new_size, message):
     print(" Old Size: ", old_size)
     print(Color.RED, message, old_size - new_size, Color.END)
@@ -46,7 +45,7 @@ def console_log_op(old_size, new_size, message):
 print(Color.YELLOW, "============================================================================================"
                     "==============================", Color.END)
 print(Color.BOLD, "-------------------------------------------------------------------------------------------"
-                  "-------------------------------", Color.END)
+                  "---.drop----------------------------", Color.END)
 # STEP 1.
 old_size = len(df_teacher_vs_teacher['user_id'])
 df_teacher_vs_teacher.drop(df_teacher_vs_teacher[(df_teacher_vs_teacher['pl_p_hint_count'] > 0) |
@@ -68,9 +67,15 @@ console_log_op(old_size, len(df_teacher_vs_teacher['user_id']),
 old_size = len(df_teacher_vs_teacher['user_id'])
 df_teacher_vs_teacher["assignment_id_user_id"] = df_teacher_vs_teacher['user_id'].map(str) + \
                                                  df_teacher_vs_teacher['plta_assignment_id'].map(str)
+
+unique_column_name = "assignment_id_user_id"
+# unique_column_name = "user_id"
+# df_teacher_vs_teacher = df_teacher_vs_teacher.loc[
+#     df_teacher_vs_teacher.groupby(unique_column_name)['plta_start_time'].idxmin()]
 df_teacher_vs_teacher = df_teacher_vs_teacher.loc[
-    df_teacher_vs_teacher.groupby('assignment_id_user_id')['plta_start_time'].idxmin()]
-unique_assignment_id_user_ids = df_teacher_vs_teacher['assignment_id_user_id'].unique()
+    df_teacher_vs_teacher.groupby(unique_column_name)['plta_start_time'].idxmin()]
+
+unique_assignment_id_user_ids = df_teacher_vs_teacher[unique_column_name].unique()
 
 console_log_op(old_size, len(df_teacher_vs_teacher['user_id']),
                "3. Removing duplicate instances from the data as user can only be exposed to 1 TA content to "
@@ -78,8 +83,9 @@ console_log_op(old_size, len(df_teacher_vs_teacher['user_id']),
 
 print(Color.YELLOW, "============================================================================================"
                     "==============================", Color.END)
+print(Color.YELLOW, "Some sample data from Previous performance table", Color.END)
 
-df_prev_performance = pd.read_csv("../data/previous_performance_records.csv")
+df_prev_performance = pd.read_csv("../data/raw_previous_performance_records.csv")
 df_prev_performance['start_time'] = pd.to_datetime(df_prev_performance['start_time'])
 df_prev_performance.sort_values(by='start_time', ascending=True)
 
@@ -92,7 +98,7 @@ print(Color.YELLOW, "===========================================================
                     "==============================", Color.END)
 
 
-def find_prev_avg_score(user_id, pl_p_problem_id, plta_problem_id, unique_assignment_id_user_id):
+def find_prev_avg_score(user_id, pl_p_problem_id, plta_problem_id, unique_assignment_id_user_id_, unique_column_name_):
     # print(" calculate the avg for the user: ", user_id, " with pre problem", pl_p_problem_id, " treatment id ",
     #       plta_problem_id)
     df_pre_proformance_temp = df_prev_performance.loc[df_prev_performance['user_id'] == user_id]
@@ -108,20 +114,22 @@ def find_prev_avg_score(user_id, pl_p_problem_id, plta_problem_id, unique_assign
     # print("---------------")
     average = df_pre_proformance_temp['correct'].mean()
     # normalizing a left-tailed normal distribution : 1 - sqrt(1-avg)
-    df_teacher_vs_teacher.loc[df_teacher_vs_teacher['assignment_id_user_id'] == unique_assignment_id_user_id,
+    df_teacher_vs_teacher.loc[df_teacher_vs_teacher[unique_column_name_] == unique_assignment_id_user_id_,
                               'pre_scores'] = (1 - math.sqrt(1 - average))
 
 
 df_teacher_vs_teacher["pre_scores"] = 0
 for unique_assignment_id_user_id in unique_assignment_id_user_ids:
-    df_temp = df_teacher_vs_teacher.loc[df_teacher_vs_teacher['assignment_id_user_id'] ==
+    df_temp = df_teacher_vs_teacher.loc[df_teacher_vs_teacher[unique_column_name] ==
                                         unique_assignment_id_user_id]
     find_prev_avg_score(df_temp.user_id.iloc[0], df_temp.pl_p_problem_id.iloc[0], df_temp.plta_problem_id.iloc[0],
-                        unique_assignment_id_user_id)
+                        unique_assignment_id_user_id, unique_column_name)
 
 # replacing with 0 will make the distribution bimodal
 # df_teacher_vs_teacher['pre_scores'].fillna(df_teacher_vs_teacher.pre_scores.mean(), inplace=True)
-df_teacher_vs_teacher.to_csv("../data/df_regression_1_pre_score.csv")
+
+# df_teacher_vs_teacher.to_csv("../data/df_regression_1_avg_pre_score.csv")
+df_teacher_vs_teacher.to_csv("../data/df_regression_1_avg_pre_score_problem_level.csv")
 
 
 # for user_id in unique_user_ids:

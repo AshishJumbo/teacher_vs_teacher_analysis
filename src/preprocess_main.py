@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("../data/problem_logs_with_teacher_assists_sept30.csv")
+df = pd.read_csv("../data/raw_problem_logs_with_teacher_assists_sept30.csv")
 
 # the first 3 ids are for star teacher 1,2,3 which are test users ans the last is for Irene Wong
 # which is the account for the summer scrub team
@@ -60,7 +60,7 @@ def drop_rename_columns(df_input):
 df_control = df.loc[df['assigned_tutor_strategy_id'] == 0]
 # historical calculates the previous performance however as we add control as well we can have mode data for problem
 # difficulty overall.
-df_historical = pd.read_csv("../data/historical_problem_records.csv")
+df_historical = pd.read_csv("../data/raw_historical_problem_records.csv")
 df_historical.append(drop_rename_columns(df_control), ignore_index=True, sort=True)
 df_historical.to_csv("../data/historical_control_problem_records.csv")
 

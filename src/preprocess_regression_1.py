@@ -11,17 +11,7 @@ print(len(df['user_id'].unique()))
 
 df_policy_4 = df.loc[df.teacher_assist_policy_id == 4]
 
-df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460570].index, inplace=True)
-df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460571].index, inplace=True)
-df_policy_4.drop(df_policy_4[df_policy_4['ts_owner_id'] == 460572].index, inplace=True)
-# df_policy_4 = df_policy_4.drop(
-#     ['Unnamed: 0', 'teacher_assist_policy_id', 'ats_assigned_at', 'plta_assignment_id', 'plta_first_action',
-#      'plta_attempt_count', 'plta_start_time', 'plta_end_time',
-#      'plta_first_response_time', 'plid', 'pl_p_id', 'pl_n_id', 'pl_n_assignment_id', 'pl_n_first_action',
-#      'pl_n_attempt_count', 'pl_n_start_time', 'pl_n_end_time',
-#      'pl_n_first_response_time', 'pl_p_assignment_id', 'pl_p_first_action', 'pl_p_attempt_count', 'pl_p_start_time',
-#      'pl_p_end_time', 'pl_p_first_response_time',
-#      'pl_p_finished'], axis=1)
+# should I have taken the attempt_counts into consideration for the exploratory data analysis? Fo now assume "NO!!"
 df_policy_4 = df_policy_4.drop(
     ['Unnamed: 0', 'teacher_assist_policy_id', 'ats_assigned_at', 'plta_first_action',
      'plta_attempt_count', 'plta_end_time', 'plta_first_response_time', 'plid', 'pl_p_id', 'pl_n_id',
@@ -29,11 +19,7 @@ df_policy_4 = df_policy_4.drop(
      'pl_n_first_response_time', 'pl_p_assignment_id', 'pl_p_first_action', 'pl_p_attempt_count',
      'pl_p_end_time', 'pl_p_first_response_time', 'pl_p_finished'], axis=1)
 
-# combine: plta_problem_id, pl_n_problem_id, pl_p_problem_id
-
-
-# we only analyze next correct for nan becuase others should not be a nan period
-
+# combine: plta_problem_id, pl_n_problem_id, pl_p_problem_id the combination will form a unique identifier
 df_policy_4.dropna(subset=['plta_problem_id', 'pl_n_problem_id', 'pl_p_problem_id', "pl_n_correct"], inplace=True)
 
 # df_policy_4['plta_start_time'] = pd.to_datetime(df_policy_4['plta_start_time'], format='%Y-%m-%d %H:%M:%S.%f')
@@ -72,8 +58,8 @@ print("-----------------------------------------------------------------------")
 print("unique combinations", df_policy_4['prev_treat_next'].unique().size)
 print("-----------------------------------------------------------------------")
 
-df_policy_4.to_csv("../data/df_policy_4_teacher_vs_teacher.csv")
-df_policy_4.to_csv("../data/df_regression_1.csv")
+# TODO: Delete this
+# df_policy_4.to_csv("../data/df_policy_4_teacher_vs_teacher.csv")
 
 df_historical_records = pd.read_csv("../data/historical_control_problem_records.csv")
 df_policy_4['pl_n_avg'] = 1
@@ -93,7 +79,7 @@ def calculate_average(next_problem_id, pre_post_identifier, pre_post_avg_identif
         average = df_temp.correct.mean()
 
     df_policy_4.loc[df_policy_4[pre_post_identifier] == next_problem_id, pre_post_avg_identifier] = average
-    print("problem - id : ", next_problem_id, " average : ", average)
+    # print("problem - id : ", next_problem_id, " average : ", average)
 
 
 unique_post_problem_ids = df_policy_4['pl_n_problem_id'].unique()
